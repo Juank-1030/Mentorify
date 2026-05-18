@@ -5,7 +5,7 @@ NO usa streaming - espera respuesta completa para filtrado
 
 import os
 from typing import Dict, List, Any, Optional
-from llm.system_prompt import get_system_prompt, get_few_shot_examples
+from backend.llm.system_prompt import get_system_prompt, get_few_shot_examples
 
 # Intentar importar OpenAI, si no está disponible usar mock
 try:

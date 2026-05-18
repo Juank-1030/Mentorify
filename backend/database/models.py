@@ -81,7 +81,7 @@ def init_db():
     Base.metadata.create_all(bind=engine)
     
     # Poblar ejercicios iniciales
-    from database.ejercicios_seed import seed_ejercicios
+    from backend.database.ejercicios_seed import seed_ejercicios
     seed_ejercicios()
 
 def get_db():

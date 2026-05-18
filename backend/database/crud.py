@@ -3,6 +3,7 @@ Operaciones CRUD para la base de datos
 """
 
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from backend.database.models import Sesion, Interaccion, Ejercicio, ProgresoEstudiante, SessionLocal, engine
 from datetime import datetime
 from typing import Optional, List, Dict, Any
@@ -297,7 +298,7 @@ def obtener_metricas() -> Dict:
         # Clasificaciones de intentos para auditoría
         clasificaciones = db.query(
             Interaccion.tipo_input,
-            db.func.count(Interaccion.id).label('count')
+            func.count(Interaccion.id).label('count')
         ).group_by(Interaccion.tipo_input).all()
         
         clasificaciones_dict = {c.tipo_input: c.count for c in clasificaciones}

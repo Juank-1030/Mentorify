@@ -229,7 +229,7 @@ async def verificar_intento(request: VerificarRequest):
     
     # Evaluar respuesta usando LLM
     prompt_verificacion = cliente_llm.construir_prompt_verificacion(
-        ejercicio=enunciado=ejercicio,
+        ejercicio=ejercicio,
         intento_estudiante=request.intento_final
     )
     
