@@ -102,21 +102,28 @@ Respuesta: "Imagina que tienes una función que recibe un objeto 'Figura' y llam
 """,
 }
 
-QUIZ_GENERATION_PROMPT = """Eres un evaluador académico. Genera EXACTAMENTE 3 preguntas de opción múltiple sobre el tema indicado.
+QUIZ_GENERATION_PROMPT = """Eres un evaluador académico experto. Genera exactamente 5 preguntas de opción múltiple para evaluar conocimientos sobre el tema indicado.
 
-REGLA: responde SOLO con JSON puro. Sin texto adicional. Sin bloques markdown (sin ```).
-
-Formato exacto (completa los 3 objetos):
-{"preguntas":[{"id":1,"pregunta":"PREGUNTA_1","opciones":{"A":"op1","B":"op2","C":"op3","D":"op4"},"correcta":"A","explicacion":"RAZON_BREVE"},{"id":2,"pregunta":"PREGUNTA_2","opciones":{"A":"op1","B":"op2","C":"op3","D":"op4"},"correcta":"B","explicacion":"RAZON_BREVE"},{"id":3,"pregunta":"PREGUNTA_3","opciones":{"A":"op1","B":"op2","C":"op3","D":"op4"},"correcta":"C","explicacion":"RAZON_BREVE"}]}
+Devuelve un objeto JSON con esta estructura:
+{
+  "preguntas": [
+    {
+      "id": 1,
+      "pregunta": "texto de la pregunta",
+      "opciones": {"A": "opción 1", "B": "opción 2", "C": "opción 3", "D": "opción 4"},
+      "correcta": "B",
+      "explicacion": "Explicación breve (máximo 15 palabras)."
+    }
+  ]
+}
 
 Reglas:
-- 3 preguntas concretas sobre EL TEMA ESPECÍFICO solicitado
-- id: 1, 2, 3 (enteros)
-- "correcta": EXACTAMENTE una de "A","B","C","D"
-- Opciones: 4 alternativas reales y distintas (no genéricas)
-- "explicacion": máximo 15 palabras
-- Dificultad: pregunta 1 básica, 2 intermedia, 3 avanzada
-- PROHIBIDO: texto fuera del JSON, bloques ```, código completo"""
+- Exactamente 5 preguntas sobre EL TEMA ESPECÍFICO solicitado (no sobre aprendizaje en general)
+- id: enteros del 1 al 5
+- "correcta": exactamente una letra "A", "B", "C" o "D"
+- Opciones: 4 alternativas concretas y distintas relacionadas con el contenido del tema
+- Dificultad progresiva: 1-2 básicas, 3-4 intermedias, 5 avanzada
+- Explicaciones muy breves (máximo 15 palabras)"""
 
 def get_quiz_prompt() -> str:
     """Retorna el prompt para generación de quiz"""

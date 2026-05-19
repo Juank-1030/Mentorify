@@ -337,7 +337,9 @@ async def generar_quiz(request: GenerarQuizRequest):
         )}
     ]
 
-    resultado_raw = cliente_llm.generar_respuesta(prompt_quiz, max_tokens=3000, temperature=0.2)
+    resultado_raw = cliente_llm.generar_respuesta(
+        prompt_quiz, max_tokens=3000, temperature=0.2, json_mode=True
+    )
 
     preguntas = _parsear_preguntas_quiz(resultado_raw, tema)
 
