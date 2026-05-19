@@ -8,6 +8,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 import uvicorn
+from dotenv import load_dotenv
+load_dotenv()
 
 from backend.database.models import init_db
 from backend.database.crud import (

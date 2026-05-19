@@ -23,17 +23,12 @@ class ClienteOpenAI:
     """
     
     def __init__(self, api_key: str = None):
-        """
-        Inicializar el cliente de OpenAI
-        
-        Args:
-            api_key: API key de OpenAI. Si es None, usa OPENAI_API_KEY del entorno.
-        """
         self.api_key = api_key or os.getenv("OPENAI_API_KEY")
-        self.model = "gpt-4o-mini"
-        
+        self.model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+        base_url = os.getenv("OPENAI_BASE_URL")  # None = usar OpenAI por defecto
+
         if OPENAI_AVAILABLE and self.api_key:
-            self.client = OpenAI(api_key=self.api_key)
+            self.client = OpenAI(api_key=self.api_key, base_url=base_url)
         else:
             self.client = None
     
