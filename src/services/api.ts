@@ -120,6 +120,27 @@ export async function obtenerEjercicios(dominio?: string, nivel?: string): Promi
 }
 
 /**
+ * Iniciar una sesión de aprendizaje libre sobre cualquier tema
+ */
+export async function iniciarSesionLibre(tema: string, estudianteId: string): Promise<SesionResponse> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/sesion/iniciar-libre`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tema, estudiante_id: estudianteId }),
+    });
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Error ${response.status}: ${error}`);
+    }
+    return response.json();
+  } catch (error) {
+    console.error('Error al iniciar sesión libre:', error);
+    throw error;
+  }
+}
+
+/**
  * Verificar intento final del estudiante
  */
 export async function verificarIntento(sesionId: number, intentoFinal: string) {
@@ -180,6 +201,90 @@ export async function obtenerMetricas() {
     console.error('Error al obtener métricas:', error);
     throw error;
   }
+}
+
+// ── Quiz / Evaluación ──────────────────────────────────────────
+
+export interface QuizPregunta {
+  id: number;
+  pregunta: string;
+  opciones: { A: string; B: string; C: string; D: string };
+}
+
+export interface QuizGeneradoResponse {
+  quiz_id: number;
+  tema: string;
+  preguntas: QuizPregunta[];
+}
+
+export interface QuizResultado {
+  puntaje: number;
+  correctas: number;
+  total: number;
+  feedback: Record<string, {
+    correcta: boolean;
+    respuesta_usuario: string;
+    respuesta_correcta: string;
+    explicacion: string;
+  }>;
+}
+
+export async function generarQuiz(sesionId: number, estudianteId: string): Promise<QuizGeneradoResponse> {
+  const response = await fetch(`${API_BASE_URL}/quiz/generar`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sesion_id: sesionId, estudiante_id: estudianteId }),
+  });
+  if (!response.ok) throw new Error(`Error ${response.status}: ${await response.text()}`);
+  return response.json();
+}
+
+export async function evaluarQuiz(quizId: number, respuestas: Record<string, string>): Promise<QuizResultado> {
+  const response = await fetch(`${API_BASE_URL}/quiz/evaluar`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ quiz_id: quizId, respuestas }),
+  });
+  if (!response.ok) throw new Error(`Error ${response.status}: ${await response.text()}`);
+  return response.json();
+}
+
+// ── Subida de archivos ─────────────────────────────────────────
+
+export interface UploadResponse {
+  filename: string;
+  tipo: string;
+  texto_extraido: string;
+}
+
+export async function subirArchivo(file: File): Promise<UploadResponse> {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await fetch(`${API_BASE_URL}/upload`, {
+    method: 'POST',
+    body: formData,
+  });
+  if (!response.ok) throw new Error(`Error ${response.status}: ${await response.text()}`);
+  return response.json();
+}
+
+// ── Historial ──────────────────────────────────────────────────
+
+export interface SesionHistorial {
+  sesion_id: number;
+  tema: string;
+  dominio: string;
+  fecha: string;
+  completado: boolean;
+  pistas_usadas: number;
+  errores: number;
+  estado: string;
+}
+
+export async function obtenerHistorial(estudianteId: string, limite = 10): Promise<SesionHistorial[]> {
+  const response = await fetch(`${API_BASE_URL}/historial/${estudianteId}?limite=${limite}`);
+  if (!response.ok) throw new Error(`Error ${response.status}: ${await response.text()}`);
+  return response.json();
 }
 
 /**

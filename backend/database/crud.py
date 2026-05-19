@@ -4,7 +4,7 @@ Operaciones CRUD para la base de datos
 
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from backend.database.models import Sesion, Interaccion, Ejercicio, ProgresoEstudiante, SessionLocal, engine
+from backend.database.models import Sesion, Interaccion, Ejercicio, ProgresoEstudiante, Quiz, SessionLocal, engine
 from datetime import datetime
 from typing import Optional, List, Dict, Any
 import json
@@ -275,6 +275,111 @@ def obtener_progreso(estudiante_id: str) -> Dict:
                 }
                 for s in sesiones[-10:]  # Últimas 10 sesiones
             ]
+        }
+    finally:
+        db.close()
+
+def crear_quiz(sesion_id: int, estudiante_id: str, tema: str, preguntas: List[Dict]) -> Dict:
+    """Crear un nuevo quiz en la base de datos"""
+    db = SessionLocal()
+    try:
+        quiz = Quiz(
+            sesion_id=sesion_id,
+            estudiante_id=estudiante_id,
+            tema=tema,
+            preguntas=preguntas,
+            completado=False
+        )
+        db.add(quiz)
+        db.commit()
+        db.refresh(quiz)
+        return {"id": quiz.id, "tema": quiz.tema, "preguntas": quiz.preguntas}
+    finally:
+        db.close()
+
+def guardar_respuestas_quiz(quiz_id: int, respuestas: Dict, puntaje: int, feedback: Dict) -> bool:
+    """Guardar respuestas y puntaje de un quiz"""
+    db = SessionLocal()
+    try:
+        quiz = db.query(Quiz).filter(Quiz.id == quiz_id).first()
+        if not quiz:
+            return False
+        quiz.respuestas_usuario = respuestas
+        quiz.puntaje = puntaje
+        quiz.feedback_respuestas = feedback
+        quiz.completado = True
+        db.commit()
+        return True
+    finally:
+        db.close()
+
+def obtener_quiz(quiz_id: int) -> Optional[Dict]:
+    """Obtener un quiz por ID"""
+    db = SessionLocal()
+    try:
+        quiz = db.query(Quiz).filter(Quiz.id == quiz_id).first()
+        if not quiz:
+            return None
+        return {
+            "id": quiz.id,
+            "sesion_id": quiz.sesion_id,
+            "tema": quiz.tema,
+            "preguntas": quiz.preguntas,
+            "puntaje": quiz.puntaje,
+            "feedback_respuestas": quiz.feedback_respuestas,
+            "completado": quiz.completado
+        }
+    finally:
+        db.close()
+
+def obtener_historial_estudiante(estudiante_id: str, limite: int = 10) -> List[Dict]:
+    """Obtener historial de sesiones de un estudiante con info del ejercicio"""
+    db = SessionLocal()
+    try:
+        sesiones = db.query(Sesion).filter(
+            Sesion.estudiante_id == estudiante_id
+        ).order_by(Sesion.fecha_inicio.desc()).limit(limite).all()
+
+        resultado = []
+        for s in sesiones:
+            ejercicio = db.query(Ejercicio).filter(Ejercicio.id == s.ejercicio_id).first()
+            resultado.append({
+                "sesion_id": s.id,
+                "tema": ejercicio.titulo if ejercicio else "Sesión libre",
+                "dominio": ejercicio.dominio if ejercicio else "libre",
+                "fecha": s.fecha_inicio.isoformat(),
+                "completado": s.completado,
+                "pistas_usadas": s.pistas_entregadas,
+                "errores": s.errores_totales,
+                "estado": s.estado_actual
+            })
+        return resultado
+    finally:
+        db.close()
+
+def crear_ejercicio_libre(tema: str) -> Dict:
+    """Crear un ejercicio dinámico de tema libre para sesión personalizada"""
+    db = SessionLocal()
+    try:
+        ejercicio = Ejercicio(
+            titulo=tema,
+            enunciado=f"Quiero aprender sobre: {tema}",
+            dominio="libre",
+            nivel_dificultad="libre",
+            conceptos_clave=[],
+            criterios_verificacion={}
+        )
+        db.add(ejercicio)
+        db.commit()
+        db.refresh(ejercicio)
+        return {
+            "id": ejercicio.id,
+            "titulo": ejercicio.titulo,
+            "enunciado": ejercicio.enunciado,
+            "dominio": ejercicio.dominio,
+            "nivel_dificultad": ejercicio.nivel_dificultad,
+            "conceptos_clave": ejercicio.conceptos_clave,
+            "criterios_verificacion": ejercicio.criterios_verificacion
         }
     finally:
         db.close()

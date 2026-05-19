@@ -102,6 +102,26 @@ Respuesta: "Imagina que tienes una función que recibe un objeto 'Figura' y llam
 """,
 }
 
+QUIZ_GENERATION_PROMPT = """Eres un evaluador académico. Genera EXACTAMENTE 3 preguntas de opción múltiple sobre el tema indicado.
+
+REGLA: responde SOLO con JSON puro. Sin texto adicional. Sin bloques markdown (sin ```).
+
+Formato exacto (completa los 3 objetos):
+{"preguntas":[{"id":1,"pregunta":"PREGUNTA_1","opciones":{"A":"op1","B":"op2","C":"op3","D":"op4"},"correcta":"A","explicacion":"RAZON_BREVE"},{"id":2,"pregunta":"PREGUNTA_2","opciones":{"A":"op1","B":"op2","C":"op3","D":"op4"},"correcta":"B","explicacion":"RAZON_BREVE"},{"id":3,"pregunta":"PREGUNTA_3","opciones":{"A":"op1","B":"op2","C":"op3","D":"op4"},"correcta":"C","explicacion":"RAZON_BREVE"}]}
+
+Reglas:
+- 3 preguntas concretas sobre EL TEMA ESPECÍFICO solicitado
+- id: 1, 2, 3 (enteros)
+- "correcta": EXACTAMENTE una de "A","B","C","D"
+- Opciones: 4 alternativas reales y distintas (no genéricas)
+- "explicacion": máximo 15 palabras
+- Dificultad: pregunta 1 básica, 2 intermedia, 3 avanzada
+- PROHIBIDO: texto fuera del JSON, bloques ```, código completo"""
+
+def get_quiz_prompt() -> str:
+    """Retorna el prompt para generación de quiz"""
+    return QUIZ_GENERATION_PROMPT
+
 def get_system_prompt() -> str:
     """Retorna el system prompt completo"""
     return SYSTEM_PROMPT

@@ -1,9 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Brain, BookOpen, MessageCircle, Target, Award, ChevronRight, Play } from 'lucide-react';
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
+  const [tema, setTema] = useState('');
+
+  const handleComenzar = () => {
+    if (tema.trim()) {
+      navigate(`/chat?tema=${encodeURIComponent(tema.trim())}`);
+    } else {
+      navigate('/chat');
+    }
+  };
 
   const features = [
     {
@@ -120,15 +129,31 @@ const LandingPage: React.FC = () => {
             Aprende cualquier tema, evalúa tu comprensión y refuerza tus debilidades
             con explicaciones, cuestionarios y recursos personalizados.
           </p>
-          
+
+          <div className="max-w-xl mx-auto mb-6">
+            <div className="flex items-center bg-white border-2 border-gray-200 rounded-2xl p-2 shadow-sm hover:border-blue-300 focus-within:border-blue-400 transition-colors">
+              <input
+                type="text"
+                value={tema}
+                onChange={(e) => setTema(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleComenzar()}
+                placeholder="¿Qué quieres aprender hoy? Ej: fotosíntesis, álgebra lineal..."
+                className="flex-1 px-4 py-2 text-gray-700 bg-transparent focus:outline-none text-base"
+              />
+              <button
+                onClick={handleComenzar}
+                className="bg-gray-900 text-white px-6 py-2.5 rounded-xl font-medium hover:bg-gray-800 transition-colors flex items-center space-x-2 flex-shrink-0"
+              >
+                <span>Comenzar</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+            <p className="text-sm text-gray-400 mt-2">
+              Escribe un tema o deja en blanco para explorar ejercicios guiados
+            </p>
+          </div>
+
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <button
-              onClick={() => navigate('/chat')}
-              className="w-full sm:w-auto bg-gray-900 text-white px-8 py-4 rounded-full font-medium hover:bg-gray-800 transition-colors flex items-center justify-center space-x-2"
-            >
-              <span>Comenzar a aprender</span>
-              <ChevronRight className="w-5 h-5" />
-            </button>
             <button className="w-full sm:w-auto bg-white text-gray-900 px-8 py-4 rounded-full font-medium border border-gray-200 hover:border-gray-300 transition-colors flex items-center justify-center space-x-2">
               <Play className="w-5 h-5" />
               <span>Ver demostración</span>
@@ -266,7 +291,7 @@ const LandingPage: React.FC = () => {
               Únete a miles de estudiantes que ya usan Mentorify para dominar sus materias.
             </p>
             <button
-              onClick={() => navigate('/chat')}
+              onClick={handleComenzar}
               className="bg-white text-gray-900 px-8 py-4 rounded-full font-medium hover:bg-gray-100 transition-colors inline-flex items-center space-x-2"
             >
               <span>Comenzar gratis</span>

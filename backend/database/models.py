@@ -74,6 +74,20 @@ class ProgresoEstudiante(Base):
     errores_por_concepto = Column(JSON, default=dict)
     ultima_sesion = Column(DateTime, default=datetime.utcnow)
 
+class Quiz(Base):
+    __tablename__ = "quizzes"
+
+    id = Column(Integer, primary_key=True, index=True)
+    sesion_id = Column(Integer, nullable=False, index=True)
+    estudiante_id = Column(String(100), nullable=False, index=True)
+    tema = Column(String(200), nullable=False)
+    preguntas = Column(JSON)          # list of {id, pregunta, opciones, correcta, explicacion}
+    puntaje = Column(Integer, nullable=True)
+    respuestas_usuario = Column(JSON, nullable=True)   # {1: "A", 2: "C", ...}
+    feedback_respuestas = Column(JSON, nullable=True)  # {1: {correcto, explicacion}, ...}
+    completado = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
 # ==================== FUNCIONES DE INICIALIZACIÓN ====================
 
 def init_db():

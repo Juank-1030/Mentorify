@@ -172,30 +172,37 @@ Responde en JSON."""
         
         return messages
     
-    def generar_respuesta(self, messages: List[Dict[str, str]]) -> str:
+    def generar_respuesta(
+        self,
+        messages: List[Dict[str, str]],
+        max_tokens: int = 500,
+        temperature: float = 0.7
+    ) -> str:
         """
         Genera respuesta del LLM (SIN STREAMING)
-        
+
         Args:
             messages: Lista de mensajes para la API
-            
+            max_tokens: Límite de tokens de respuesta (default 500; usar ~2000 para quiz)
+            temperature: Temperatura de muestreo (default 0.7; usar ~0.2 para JSON estructurado)
+
         Returns:
             Respuesta completa del LLM
         """
         if self.client is None:
             return self._generar_respuesta_mock(messages)
-        
+
         try:
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
-                temperature=0.7,
-                max_tokens=500,
+                temperature=temperature,
+                max_tokens=max_tokens,
                 stream=False  # NO STREAMING - respuesta completa buffered
             )
-            
+
             return response.choices[0].message.content.strip()
-            
+
         except Exception as e:
             # Fallback a respuesta mock en caso de error
             print(f"Error en llamada a OpenAI: {e}")
