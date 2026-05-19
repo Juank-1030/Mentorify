@@ -23,6 +23,8 @@ npm run dev
 ```
 
 Abre http://localhost:5173 en tu navegador.
+En caso de que la instalacion de los requerimientos del back falle, instalar ultima version de python desde aqui: https://www.python.org/downloads/
+En caso de que la instalacion de npm falle, instalar node.js desde aqui: https://nodejs.org/es
 
 ## 🚀 Características Principales
 
