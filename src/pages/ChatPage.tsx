@@ -40,35 +40,37 @@ const ChatPage: React.FC = () => {
     cargarEjercicios();
   }, []);
 
-  // Iniciar sesión cuando se selecciona un ejercicio
+  // Iniciar sesión cuando el usuario elige un ejercicio distinto desde la URL
   useEffect(() => {
-    if (ejercicioId) {
+    if (ejercicioId && ejercicios.length > 0) {
       const ejercicio = ejercicios.find(e => e.id === parseInt(ejercicioId));
-      if (ejercicio) {
+      if (ejercicio && ejercicio.id !== selectedEjercicio?.id) {
         setSelectedEjercicio(ejercicio);
         iniciarSesionConEjercicio(ejercicio);
       }
     }
-  }, [ejercicioId, ejercicios]);
+  }, [ejercicioId]);
 
   const cargarEjercicios = async () => {
     try {
       const lista = await obtenerEjercicios();
       setEjercicios(lista);
-      
-      // Si hay un ejercicioId en la URL, cargarlo
-      if (ejercicioId && lista.length > 0) {
-        const ejercicio = lista.find(e => e.id === parseInt(ejercicioId));
-        if (ejercicio) {
-          setSelectedEjercicio(ejercicio);
-          iniciarSesionConEjercicio(ejercicio);
-        }
+
+      if (lista.length > 0) {
+        // Si hay ejercicioId en la URL úsalo, si no auto-selecciona el primero
+        const ejercicio = ejercicioId
+          ? lista.find(e => e.id === parseInt(ejercicioId)) ?? lista[0]
+          : lista[0];
+        setSelectedEjercicio(ejercicio);
+        iniciarSesionConEjercicio(ejercicio);
       }
     } catch (err) {
       console.error('Error al cargar ejercicios:', err);
       setError('No se pudo conectar con el servidor. Asegúrate de que el backend esté corriendo en http://localhost:8000');
-      // Usar ejercicios de respaldo
       setEjercicios(ejerciciosRespaldo);
+      // Auto-seleccionar primer ejercicio de respaldo
+      setSelectedEjercicio(ejerciciosRespaldo[0]);
+      iniciarSesionConEjercicio(ejerciciosRespaldo[0]);
     }
   };
 
@@ -310,6 +312,12 @@ const ChatPage: React.FC = () => {
 
         {/* Área de mensajes */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {messages.length === 0 && !isLoading && (
+            <div className="flex flex-col items-center justify-center h-full text-center text-gray-400 space-y-3">
+              <Brain className="w-12 h-12 opacity-30" />
+              <p className="text-sm">Cargando ejercicio...</p>
+            </div>
+          )}
           {messages.map(message => (
             <div
               key={message.id}
