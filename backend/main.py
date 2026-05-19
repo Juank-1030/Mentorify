@@ -135,7 +135,8 @@ async def interactuar(request: InteractuarRequest):
     prompt_llm = cliente_llm.construir_prompt(
         ejercicio=ejercicio,
         instruccion=instruccion_llm,
-        historial=sesion["historial_interacciones"]
+        historial=sesion["historial_interacciones"],
+        texto_actual=request.texto_estudiante
     )
     
     # Paso 5: Llamar LLM (SIN STREAMING)
